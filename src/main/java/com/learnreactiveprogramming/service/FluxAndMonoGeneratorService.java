@@ -18,6 +18,13 @@ public class FluxAndMonoGeneratorService {
         return Mono.just("alex");
     }
 
+    public Mono<String> namesMonoMapFilter(int stringLength) {
+
+        return Mono.just("alex")
+                .map(String::toUpperCase)
+                .filter(s-> s.length() == stringLength);
+    }
+
     public Flux<String> namesFluxMap(int stringLength) {
 
         // filter the string whos length is greater then 3
