@@ -6,6 +6,8 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Function;
+import java.util.function.Function;
 
 public class FluxAndMonoGeneratorService {
 
@@ -100,6 +102,41 @@ public class FluxAndMonoGeneratorService {
                 .filter(s-> s.length() == stringLength)
                 .flatMapMany(this::splitString)
                 .log();
+    }
+
+    public Flux<String> namesFlux_transform(int stringLength) {
+
+        Function<Flux<String>, Flux<String>> filterMap = name -> name.map(String::toUpperCase)
+                .filter(s -> s.length() > stringLength);
+
+        // return the individual characters of the list
+        return Flux.fromIterable(List.of("alex", "ben", "chloe"))
+                .transform(filterMap)
+                .flatMap( s -> splitString(s))
+                .defaultIfEmpty("default")
+                .log(); // db or a remote service call
+    }
+
+    public Flux<String> namesFlux_transform_switchIfEmpty(int stringLength) {
+
+        Function<Flux<String>, Flux<String>> filterMap = name -> name.map(String::toUpperCase)
+                .filter(s -> s.length() > stringLength)
+                .flatMap( s -> splitString(s));
+
+        var defaultFlux =  Flux.just("default")
+                .transform(filterMap);
+
+        // return the individual characters of the list
+        return Flux.fromIterable(List.of("alex", "ben", "chloe"))
+                .transform(filterMap)
+                .switchIfEmpty(defaultFlux)
+                .log(); // db or a remote service call
+    }
+
+    public Flux<String> explore_concat() {
+        var abcFlux = Flux.just("A", "B", "C");
+        var defFlux = Flux.just("D", "E", "F");
+        return Flux.concat(abcFlux, defFlux);
     }
 
     public static void main(String[] args) {

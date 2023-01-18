@@ -105,4 +105,37 @@ public class FluxAndMonoGeneratorServiceTest {
                 .expectNext("A", "L", "E", "X")
                 .verifyComplete();
     }
+
+    @Test
+    void namesFluxTransform() {
+        int stringLength = 3;
+
+        var namesFlux = fluxAndMonoGeneratorService.namesFlux_transform(stringLength);
+
+        StepVerifier.create(namesFlux)
+                .expectNext("A","L","E","X","C","H","L","O","E")
+                .verifyComplete();
+    }
+
+    @Test
+    void namesFluxTransform_1() {
+        int stringLength = 6;
+
+        var namesFlux = fluxAndMonoGeneratorService.namesFlux_transform(stringLength);
+
+        StepVerifier.create(namesFlux)
+                .expectNext("default")
+                .verifyComplete();
+    }
+
+    @Test
+    void explore_concat() {
+
+        var concatFlux = fluxAndMonoGeneratorService.explore_concat();
+
+        StepVerifier.create(concatFlux)
+                .expectNext("A", "B", "C", "D", "E", "F")
+                .verifyComplete();
+
+    }
 }
