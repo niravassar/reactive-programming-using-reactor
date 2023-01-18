@@ -58,15 +58,25 @@ public class FluxAndMonoGeneratorService {
         return Flux.fromIterable(List.of("alex", "ben", "chloe"))
                 .map(String::toUpperCase)
                 .filter(s -> s.length() > stringLength)
-                .flatMap( s -> splitString_wthDelay(s))
+                .flatMap( s -> splitString_withDelay(s))
                 .log(); // db or a remote service call
     }
 
-    public Flux<String> splitString_wthDelay(String name) {
+    public Flux<String> splitString_withDelay(String name) {
         var charArray = name.split("");
        var delay = new Random().nextInt(1000);
         return Flux.fromArray(charArray)
                 .delayElements(Duration.ofMillis(delay));
+    }
+
+    public Flux<String> namesFluxConcatMap(int stringLength) {
+
+        // return the individual characters of the list
+        return Flux.fromIterable(List.of("alex", "ben", "chloe"))
+                .map(String::toUpperCase)
+                .filter(s -> s.length() > stringLength)
+                .concatMap( s -> splitString_withDelay(s))
+                .log(); // db or a remote service call
     }
 
     public static void main(String[] args) {
