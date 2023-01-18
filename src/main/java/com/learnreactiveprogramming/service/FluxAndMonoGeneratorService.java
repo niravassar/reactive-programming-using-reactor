@@ -7,7 +7,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
-import java.util.function.Function;
 
 public class FluxAndMonoGeneratorService {
 
@@ -139,7 +138,7 @@ public class FluxAndMonoGeneratorService {
         return Flux.concat(abcFlux, defFlux).log();
     }
 
-    public Flux<String> explore_concatWith() {
+    public Flux<String> explore_concatWithMono() {
         var aMono = Mono.just("A");
         var bMono = Mono.just("B");
 
@@ -149,9 +148,34 @@ public class FluxAndMonoGeneratorService {
     public Flux<String> explore_merge() {
         var abcFlux = Flux.just("A", "B", "C")
                 .delayElements(Duration.ofMillis(100));
+
         var defFlux = Flux.just("D", "E", "F")
-                .delayElements(Duration.ofMillis(125));;
+                .delayElements(Duration.ofMillis(125));
+
         return Flux.merge(abcFlux, defFlux).log();
+
+    }
+
+    public Flux<String> explore_mergeSequential() {
+        var abcFlux = Flux.just("A", "B", "C")
+                .delayElements(Duration.ofMillis(100));
+
+        var defFlux = Flux.just("D", "E", "F")
+                .delayElements(Duration.ofMillis(125));
+
+        return Flux.mergeSequential(abcFlux, defFlux).log();
+
+    }
+
+    public Flux<String> explore_mergeWith() {
+        var abcFlux = Flux.just("A", "B", "C")
+                .delayElements(Duration.ofMillis(100));
+
+        var defFlux = Flux.just("D", "E", "F")
+                .delayElements(Duration.ofMillis(125));
+
+        return abcFlux.mergeWith(defFlux).log();
+
     }
 
     public static void main(String[] args) {
