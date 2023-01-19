@@ -182,4 +182,15 @@ public class FluxAndMonoGeneratorServiceTest {
                 .verifyComplete();
 
     }
+
+    @Test
+    void explore_zip() {
+
+        var concatFlux = fluxAndMonoGeneratorService.explore_zip();
+
+        StepVerifier.create(concatFlux)
+                .expectNext("AD","BE", "CF")
+                .verifyComplete();
+
+    }
 }

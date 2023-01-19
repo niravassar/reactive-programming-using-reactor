@@ -178,6 +178,17 @@ public class FluxAndMonoGeneratorService {
 
     }
 
+    public Flux<String> explore_zip() {
+        var abcFlux = Flux.just("A", "B", "C");
+
+        var defFlux = Flux.just("D", "E", "F");
+
+        return Flux.zip(abcFlux, defFlux, (first, second) -> first + second)
+                .log();
+
+    }
+
+
     public static void main(String[] args) {
         FluxAndMonoGeneratorService fluxAndMonoGeneratorService = new FluxAndMonoGeneratorService();
 
