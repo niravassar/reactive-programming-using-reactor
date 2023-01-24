@@ -34,4 +34,22 @@ class MovieReactiveServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    void getMovieById() {
+
+        long movieId = 100L;
+
+        var movieMono = movieReactiveService.getMovieById(movieId).log();
+
+        StepVerifier.create(movieMono)
+                .assertNext(movieInfo -> {
+                    assertEquals("Batman Begins", movieInfo.getMovieInfo().getName());
+                    assertEquals(movieInfo.getReviewList().size(), 2);
+
+                })
+                .verifyComplete();
+
+
+    }
 }
