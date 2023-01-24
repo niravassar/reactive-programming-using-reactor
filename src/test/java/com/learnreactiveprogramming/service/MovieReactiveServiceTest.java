@@ -1,0 +1,37 @@
+package com.learnreactiveprogramming.service;
+
+import org.junit.jupiter.api.Test;
+import reactor.test.StepVerifier;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class MovieReactiveServiceTest {
+
+
+    private MovieInfoService movieInfoService = new MovieInfoService();
+    private ReviewService reviewService = new ReviewService();
+
+    MovieReactiveService movieReactiveService = new MovieReactiveService(movieInfoService, reviewService);
+
+    @Test
+    void getAllMovies() {
+
+        var moviesInfo = movieReactiveService.getAllMovies();
+
+        StepVerifier.create(moviesInfo)
+                .assertNext(movieInfo -> {
+                    assertEquals("Batman Begins", movieInfo.getMovieInfo().getName());
+                    assertEquals(movieInfo.getReviewList().size(), 2);
+
+                })
+                .assertNext(movieInfo -> {
+                    assertEquals("The Dark Knight", movieInfo.getMovieInfo().getName());
+                    assertEquals(movieInfo.getReviewList().size(), 2);
+                })
+                .assertNext(movieInfo -> {
+                    assertEquals("Dark Knight Rises", movieInfo.getMovieInfo().getName());
+                    assertEquals(movieInfo.getReviewList().size(), 2);
+                })
+                .verifyComplete();
+    }
+}
