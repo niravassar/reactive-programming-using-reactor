@@ -3,6 +3,7 @@ package com.learnreactiveprogramming.service;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
+import javax.management.RuntimeErrorException;
 import java.util.List;
 
 public class FluxAndMonoGeneratorServiceTest {
@@ -213,6 +214,18 @@ public class FluxAndMonoGeneratorServiceTest {
         StepVerifier.create(concatFlux)
                 .expectNext("AD","BE", "CF")
                 .verifyComplete();
+
+    }
+
+    @Test
+    void exception_flux() {
+
+        var value = fluxAndMonoGeneratorService.exception_flux().log();
+
+        StepVerifier.create(value)
+                .expectNext("A","B","C")
+                .expectError(RuntimeException.class)
+                .verify();
 
     }
 }

@@ -51,6 +51,15 @@ public class FluxAndMonoGeneratorService {
                 .log(); // db or a remote service call
     }
 
+    public Flux<String> exception_flux() {
+
+        System.out.println("Nirav");
+
+        return Flux.just("A", "B", "C")
+                .concatWith(Flux.error(new RuntimeException("Exception Occurred")))
+                        .concatWith(Flux.just("D"));
+    }
+
     public Flux<String> namesFluxFlatMap(int stringLength) {
 
         // return the individual characters of the list
