@@ -1,0 +1,277 @@
+projectReactor
+==============
+
+https://projectreactor.io/
+https://docs.micronaut.io/latest/guide/#reactiveConfigs
+
+Actions/Questions
+-------------------------
+- [] find a good udemy
+- [x] read intor article
+- [] create micronaut project - reactive-java-demo
+
+Learn reactive Java Article
+-----------------------------
+https://www.baeldung.com/java-reactive-systems
+	- Reactive manifesto
+		- responsive
+		- resllient
+		- elastic
+		- message-driven
+
+The article proposes a base system based on non reactive architecture, it is a order and shipping system. then it lays out the need for reactive programming to make it a reactive system. 
+
+This system has a few problems
+	- blocking calls to database
+	- failure has cascade effect
+	- deployment has faileures and cant handle fluctuating loads
+	
+- blocking calls happen in database calls, calls to web services, and file system calls. we want to free up waiting and provide a mechanism to circle back once result are available. 
+- change the return types to Flux and Mono, then use flatMap and get the access to the return data. 
+
+Udemy reactive java 
+==========================
+
+course:
+https://objectcomputing.udemy.com/course/reactive-programming-in-modern-java-using-project-reactor/
+
+source:
+https://github.com/dilipsundarraj1/reactive-programming-using-reactor/tree/final
+	- final branch is final version
+
+My repo
+https://github.com/niravassar/reactive-programming-using-reactor.git
+- to push to my repo do this 
+	git push --mirror https://github.com/niravassar/reactive-programming-using-reactor.git
+
+local code
+C:\Users\nirav\Documents\oci-training-code\reactive-programming-using-reactor
+also i -final version
+
+- need for reactive programming
+- what is reactive programmings and reactice streams.
+- write reactive programming. write junit test cases. 
+
+Why reactive programming
+--------------------------------
+- lays the foundation for the concepts.
+- traditional way is to make a call to db and blocks all other and waits for db. this is synchronous. Whole thread is blocked until it is complete
+- we cant keep waiting on dbs, rest apis, or mobile phones. A request that goes to all three has response time.
+	- we can do thread per request model. it has a large thread pool, it will be a lot for a server. it is 1mb per thread. uses jvm. 
+- reactivce programming is a better option. 
+	- it is actually multiple calls going on first it immediately replies that it connected, then sends a request for data, then the server will send back muktiple packets of data when it becomes available with onNext(n), then when complete tells you when its complete.
+- data flows as event/message stream. 
+- when data is available it calls back onNext(n) with data, onComplete is whens its done. 
+- reactive programming looks like functional programming. 
+- what is backpressure - concept of app controlling the data flow with messages say i want more or i want less is backpressure
+- use reactice programming that want to handle high load. use project reactor for building non blocking apis. Spring webFlux does this. 
+- reactive streams created by netflix, ligtbend, vmware: publisher, subscriber,, subscription, processor
+	- publisher is the datasource
+	- subscriber has onNext, onComplete, etc. 
+	- subscription has request() and cancel()
+	- processor extends subscriber and publisher - so it does both. 
+- Flow of reactice streams 		
+
+Getting started with the project
+--------------------------------------
+- project reactor is a reactive library. micronaut and spring webflux uses project reactor by default. 4th generation reactive. has Flux and Mono. we will focus on reactor core and reactor test. see the project reactor reference guide. 
+- Flux has 0 to N elements; Mono represents 0 or 1 element. 
+- Flux - each element comes and goes through an operation. 
+	- filter operator is similar to streams api and it transforms the data. it will select certain elements based on a criteria.
+	
+Project setup
+------------------
+- set it up locally
+
+Functional programmming
+------------------------------
+- reactive programming uses functional style of writing code. 
+- what is functional programming - was introduced in java 8, lamdba, method references, and functional interfaces. 
+- what is before java 8, imperative 
+- filter list of strings for length greater then 3. 
+	- first write code that you would write before java 8, the imperative style. in ImperativeExample vs FunctionalExample
+	
+	        return namesList
+                .parallelStream()
+                .filter( s -> s.length() > size)
+                .map(String::toUpperCase)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+				
+- parallelStream() makes doing things in parallel very easy, instead of splitting methods and then marking threads. in imperative programming you have to keep track of source and result and mutate the data, where in functional it is declarative. there is no concept of mutation. it is inherent. reactive programming looks similar to this style. 
+
+Write first flux and mono
+=======================================
+- FluxAndMonoGeneratorService - how do you create something that returns a Flux?  - you create flux.fromIterable, and then you have to subscribe to get elements.
+- Reactive Stream Events
+	- subscribe is always the attached method to the publisher. log shows the steps for the reactive stream events. 
+	
+Test with Junit 5
+==============================
+- lets test it junit automated. 
+- use reactor-test - StepVerifier
+
+Transforming Flux and Mono
+================================
+- map() operator is used to transform from one form to another. it is like streams api, same functionality
+- change to uppercase -- could do map(s->s.toUpperCase)
+- reactive streams are immiutable - every operator returns a new list
+- filter() used to filter elements in a reactive stream
+- flatmap() transforms one source element to a flux - puts all values into a flat array - (multiple levels to one level)
+	- makes this - [ [2, 3, 5], [7, 11, 13], [17, 19, 23] ]
+		into this [ 2, 3, 5, 7, 11, 13, 17, 19, 23 ] 
+- async flatMap() - make it delay - with delay and a random wait everything is out of order; flat map is ansychronous.
+- map and flatmap - map is 1-1 transformation; flatmap is 1 to n transformation. 
+- concatMap() = works same as flatMap, but order is preserved. - it will be slower though
+- flatmap in mono - use it when you return Mono<list<string>> - return from "alex", and mono list of "A" "L" "E" "X"
+	- ? why use a Mono<List> - you will get asynchronously a full list of elemenets in one shot. When you have Flux<T> you will get 0 to many T elements, one by one as they come. We are going to return a mono string with flatmap from a mono
+- flatMapMany in mono - it will return a flux from a mono
+- transform() - accepts funcational interface. transform from one type to another. it takes a closure like thing
+	- functional interfaces allow you to take functionality and put it in a variable like a closure
+	- use it for reusable functionality like a closure - that is functional programming. 
+- Handling Empty Data - defaultIfemty, switchIfEmpty
+	- it is not mandatory to get data, it could be empty. you could just get onComplete with nothing in it. 
+	- we will use the transform example and try and make a test which will send back nothing, meaning we will ask for strings with min 6 character
+	- when there is nothing returned there is no onNext() event
+	- switchIfEmpty accepts returns a mono or flux and takes a Functional Interface
+		- ** i didnt understand this at all
+		
+Combining Reactive Streams
+===================================
+- why would you combine Flux and Mono - mutltiple data sources have data that come in. Then you need to combine those responses. there are operators that do this
+- concat() and concatWith()
+	- these happen in a sequence - one finishes then the other starts. they both work similarly. 
+- merge and mergeWith- combine two publishers into one. merged in an interleaved fashion - which is not the case with concat. 
+- mergeSequential() two publishers into one - they are subscribed eagerly. you can have delays but it is still sequential
+- zipWith() and zip() - zip multiple operators together - takes two publishers and a lambda which is the operation. the exampe tajes two fluxs and then a lambda that concats the chars together. - it waits until each one is complete. you can ip 4 into one as well. You can comvie as much as 8. They are called tuples, and in the example there is Tuple4, it becomes an object and you can get the elements as t4.getT1().
+	- ** didnt so zipWith Mono - dont make sense
+
+- [] watch a youtube video and see if you understand some of proreactor now
+
+	Java Brains - Reactive programming with Java - full course)
+	
+	https://www.youtube.com/watch?v=EExlnnq5Grs&list=PLqq-6Pq4lTTYPR2oH7kgElMYZhJd4vOGI
+
+
+Reactive Movie Service
+=================================
+- movie service (reactive) - all will return flux or mono types - it will interact with moviInfoService and reviewService
+- client will getAllMovies(), and getMoviedById(movieId) - then the movie service will go to infoService and Review to get reviews.
+- will give you a feeling of writing a reactive system. 
+- movie, movieInfo, Review and Revenue - all domains. has lambok constructors. 
+- getAllMovies you are getting the movieInfo and then reviews and combing them into movies using reactive programming - you will return flu with 3 movies
+	- used flatMap because we had a flux and we wanted to return a mono (different type than original)
+	- assertNext you can check each value. Spent some time on lombok problems, but it was not that it was the naming of the variable, lombok worked. 
+- uses zipwith to combine movieinfo and review for a mono. 
+- I did not understand flatMap on reactive
+	- research - flatMap converts single value of type T into a publisher of elements 
+	- flatMap returns a publisher - you flatten stuff into one publisher, it could be a list, it could be single products. you must convert whatever you have to a publisher. you can return a mono also, or a flux, because both are publishers. 
+	- if you do map and map again, that you get a Flux<Flux<String>> which is not what you want. Therefore you a flatMap for the second map. 
+	
+DoOn callBack operators
+=================================
+- doOn operators allows you to peak into the events of a publisher. they dont change the stream at all. 
+	- doOnSubscribe, doOnNext, doOnComplete, doOnError - they are invoked when these events happen. 
+	- good for debugging. 
+	- you can print each one out. 
+	
+Exception and Error Handlong in Reactive Streams
+=====================================
+- write a method to contain an exception in the stream, then a test case. it will have ABC-Exception-D
+- expectErrorMessage - you can chekc the type of exception or the message. - any exception will terminate the reactive stream
+
+
+
+=========================================================================================
+Java Brains
+=========================================================================================
+
+	Java Brains - Reactive programming with Java - full course)
+	
+	https://www.youtube.com/watch?v=EExlnnq5Grs&list=PLqq-6Pq4lTTYPR2oH7kgElMYZhJd4vOGI
+
+	https://www.youtube.com/watch?v=eHmM0EOmAS8&list=PLqq-6Pq4lTTYPR2oH7kgElMYZhJd4vOGI&index=2
+	- default java model is blocking - you call something and wait.
+	- react to events
+	- before we dont think about concurrent requests to a controller
+	- instead of reactive you could do completeable future and future which is concurrency programming - then you join the two results at the end. However, it is verbose programming and then you have to join() on several items. 
+	- reactive with zipWith will make the two calls and do it concurrently in the same thread and then also its simple code. There are also reusable flexible patterns. 
+	- with streams you care about operations, not how its stored, not how it is looping through 
+	- Reactice is similar to Iterator and Observer Pattern in the fact that it makes something else iterate through the items, and you just use that to work with it. Iterator is pull, and observer is push that is the only difference. 
+	- reactice programming is just making the same programming model and abstracting the pull and push from each, meaning you doesnt really make a difference the programming is the same. irrespective of when the even happens, or irrespective of who controls when the data is pushed or pulled, or iterating or being pulled, the programming model is the same. 
+	- subscribe its putting the hook in so when something happens it runs the method. method doesnt run when subscribe occurs, only when the event happens. 
+	
+	Code Repo
+	--------------------
+	- get the code and incorporate it into a package in the existing udemy project
+	- repo is here https://github.com/koushikkothagal/reactive-java-workshop
+	- code is ported to here C:\Users\nirav\Documents\oci-training-code\reactive-programming-using-reactor\src\main\java\io\javabrains\reactiveworkshop
+	
+	Excercise 2
+	----------------------
+	- subscribe is just waiting for the stream to come in. 
+	- you have to read to keep the process open, otherwise die to non blocking nature the call will be made and then the program will end
+	- when you send your observer to the reactive stream, you dont have control of when it will get executed. That is the separation of the programming model and the resources. 
+	
+	Excercise 3
+	===============
+	- what if i want a list - then you create a stream or just make a list.
+	- however, then you made blocking call so it waits now
+	
+	Key interfaces and types
+	==============================
+	
+	Excercise 4
+	--------------
+	- flux and mono - you should return monos and fluxs so nothing will be blocked. no one will be waiting on you.
+	
+	Event types and terminal events
+	---------------------------
+	- flux and mono have the concept of a completion event so it isnt wasting observers (subscriber's) time waiting, after the last piece of data is sent. It also has failure events  
+	
+	Subscribe method
+	--------------------
+	- various params for subscribe. it takes a Consumer, which takes an element and does something with it. happens only when an item is released. It can also take an errorConsumer, and a completeConsumer, a subscriptionConsumer. 
+	
+	Excercise 5
+	---------------------
+	- use the error and completion consumers. 
+	
+	Reactive all the way
+	-------------------------
+	- [x] research if controllers return reactive types to client ui or client rest services. 
+	- in JavaBrains, he is returning Mono<String> types so its not blocking. 
+	- in the broswer and rest api, they are not going to get anything different. They are going to make a Http request and they are going to get a Http response. However, you are making your code non blocking, and you are not spawning a bunch of threads with different requests. 
+	- if a controller call takes a bunch of time, due to an outside api call, it doesnt block. It suscribes and then has an observer that will get called when the data is ready. and the thread runs and stops. Spring will figure out that the httpRequest is waiting on a mono and it will return it to the user
+	- this is what i want to do in controller 
+	- https://www.youtube.com/watch?v=II52GMXir4E&list=PLqq-6Pq4lTTYPR2oH7kgElMYZhJd4vOGI&index=30
+	
+	User Controller
+	-------------------------------
+	what if you have to do a bunch of user operations before you return a Mono<user> from a controller
+	- do the operators on the stream() and then subscribe when the element comes in. like do a filter, and find a user profile, then subscribe and return it. 
+	
+Actions
+======================
+- [] create some requirements for a micronaut reactive app - movie app - Movie (name, year, genre), Actor (name, birthdate)
+- [] create app with micronaut reactor - framework
+- [x] research micronaut reactive applications
+- [] create teh readme to be a little better
+- [] create a learning plan for this
+- 
+
+
+Demo app reactive
+===============================================
+
+Requirements
+==============================
+- micronaut-beginner-reactive
+
+- Create a rest api micronaut application that is reactive in native. The application will not have a real data store. It will have two services instead that mimic outside api calls and return data with delays in between elements. The application will be built with reactive programming techinques all the way up to the controller layer. 
+- The application will have two enities, Movie and Actor. The data services will provid a list of movies and a list of actors. The movies will have attributes (name, year, genre) as attributes and Actor will have name and birthdate as attributes. The application services will do queries and return various sets of data. For movies, we will query for all movie, all movies made after a year, all movies that are a certain genre. For actors, find all actors, older than a certain age.  The application will also add actors to a movie and send it back.
+- The app will have some tests which will verify the functionality and demonstrate the reactive nature of it.  
+
+
+
