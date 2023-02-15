@@ -181,7 +181,61 @@ Exception and Error Handlong in Reactive Streams
 - write a method to contain an exception in the stream, then a test case. it will have ABC-Exception-D
 - expectErrorMessage - you can chekc the type of exception or the message. - any exception will terminate the reactive stream
 
+Exception Handling in MoviesReactiveService using onErrorMap
+=====================================================================
+- when the calls fail throw a movieException. Use onError() - transfer from raw type to MovieException.  onErrorMap((ex) - { log.error("); throw new MovieException() })
+- Test it with - use with mockito to mock the service to throw an exception. 
 
+Reactor Execution Model
+================================
+- take a look at the threads involved in reactive functions
+- nothing happens until you subscribe for it. The thread that does the subscription is the thread that goes through. 
+- When you add a delay there will be another thread introduced. 
+- reactor execution model - has Scheduler class which creates and manages the threads. Reactor takes care of creating new threads. 
+- Schedulers is a factory clss that can be used to switch the threads in the reactive pipeline execution. Schedulers.parallel()
+- publishOn() creates a new thread. it influences the thread that is used downstream
+- subcribeOn also starts a thread. it influences all the threads upstream. 
+
+Making Blocking Call in reactive programming
+=======================================================
+- simulate a review builder objects and it has a delay that is blocking. It returns a plain class. This is a blocking call. 
+- you can take the mon reactive objct and do Mono.fromCallable, and return the object with will become a Mono. 
+
+BackPressure
+========================
+- what is the need for Backpressure - handles the scenario where the subscriber controls how much data is sent back, and you can request how much data you want. reactive programming enables this and regular programming does not
+- [] do the code - flux of 1 to 100 and then subscribe to the flux. what happens is that onNext() occurs.  default value of pushing is unbounded. So we want to change the behavior. In the subscribe pass in a baseSubscriber. Then override the BaseSubscriber.hookOnSubscribe()
+
+    request.subscribe(
+      System.out::println,
+      err -> err.printStackTrace(),
+      () -> System.out.println("All 50 items have been successfully processed!!!"),
+      subscription -> {
+          for (int i = 0; i < 5; i++) {
+              System.out.println("Requesting the next 10 elements!!!");
+              subscription.request(10);
+          }
+      }
+    );
+	
+	you can also implement BaseSubscriber.hookOnNext() and put cancel() in there. 
+
+- https://www.baeldung.com/spring-webflux-backpressure
+
+Parallellism
+==============================
+use .parallel and .runOn(Schedulers.parallel) it runs as many tasks as cores on your machine. hava to use both. if you use one the it only creates one thread. To make it faster for one operation, but you want thread per operation then you need runOn().
+
+Runtime.getRuntine().getAvailableProcessors() tells the number of cores 
+
+Hot and Cold Stream
+=============================
+Cold stream which emits from beginning to end from EVERY subscription. Similar to http with similar request, same as DB request. It will give the values from both. 
+HOt stream is emitted continuously, and whoever subscribes just gets what is in line and the current state of the stream, what is gone is gone. Examples: stock tickers, uber driver tracking, radio station, it is real time emitting. 
+
+hot streams - it can have a delay between each element and you can .share() which will have  the next subscriber join the same. You can use ConnectableFlux. 
+
+Build nonBlockingRestClient.
 
 =========================================================================================
 Java Brains
@@ -282,3 +336,43 @@ SERVICE REQUIREMENTS
 - For movies, we will query for all movies (1.0), all movies made after a year with a certain genre(1.1). Retrieve movies with the title now changed to be title and year in it (1.2). 
 - For actors, find all actors older than a certain age (2.0).  
 - The application will also add actors to a movie and send it back (3.0).
+
+Try to avoid nested reactive streams
+========================================
+addJimCarreyToMovieAsActor() - has nested streams. met with mike Pleiman and try this instead
+
+- [] redo with these notes 
+
+    // try getting with two monos; keep the flatMap;
+    // get a single mono witha movie name, get a actor with name.
+    // use a zip, with tuple of movie and actor and return the combination of a single movie for mono stream.
+	
+- Backpressure - https://www.baeldung.com/spring-webflux-backpressure
+
+
+======================================================================================================================================
+Java Reactive Programming [ From Scratch ]
+
+https://objectcomputing.udemy.com/course/complete-java-reactive-programming/learn/lecture/24491122#overview
+
+- purpose is to look at this course for targeted areas which are more advanced than the other course, and see examples that are more complicated.
+Also to get some more conceptual understanding of reactive programming and how to apply it to building reactive microservices.  This thing has quizes at the end of lectures. 
+
+Problem with Thread / Request Model
+-----------------------------------
+- one thread of part of each request. Grows to fast and is blocking. 
+
+Reactive Streams Introduction
+------------------------------------
+- subset of event driven asynchronous programming. 
+
+Publisher Subscriber Communication
+--------------------------------------------
+
+========================================================================================================================
+
+Reactive Database research
+---------------------------------
+
+Reactive Programming and Relational Databases
+https://spring.io/blog/2018/12/07/reactive-programming-and-relational-databases
