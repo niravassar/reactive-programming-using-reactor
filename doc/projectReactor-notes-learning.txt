@@ -231,15 +231,47 @@ Runtime.getRuntine().getAvailableProcessors() tells the number of cores
 Hot and Cold Stream
 =============================
 Cold stream which emits from beginning to end from EVERY subscription. Similar to http with similar request, same as DB request. It will give the values from both. 
-HOt stream is emitted continuously, and whoever subscribes just gets what is in line and the current state of the stream, what is gone is gone. Examples: stock tickers, uber driver tracking, radio station, it is real time emitting. 
+Hot stream is emitted continuously, and whoever subscribes just gets what is in line and the current state of the stream, what is gone is gone. Examples: stock tickers, uber driver tracking, radio station, it is real time emitting. 
 
 hot streams - it can have a delay between each element and you can .share() which will have  the next subscriber join the same. You can use ConnectableFlux. 
 
-Build nonBlockingRestClient.
+Build nonBlockingRestClient
+==========================================
+- uses network calls, has a service that uses a h2 in memory database. and used r2dbc driver
+- ythe application is a jar file in the repo project. 
+- start it using the java -jar reactive-movies-restfull-api.jar
+- what he does is start calling an api in the MovieInfoServie to get the movies. 
+
+Programatically create a flux and Mono
+====================================================
+- Flux.just, .fromIterable, fromArray, or using webClient like FromBodyToMono. 
+- flux.generate, create(), etc. With this we need to explicitly emit the onNext and onComplete etc. The reactor guide has instructions on how to fulfill the api so that you can manipulate it. You need to implement state and sink, etc, with emitting values. Its complication but it gives a window of how the implementation of reactor stuff works. It is basically framework code.
+
+Debugging Project Reactor
+=======================================
+- reactive stacktrace - you cant really see the line of code that caused your exception, it is asynchronous so it wont have your line of code. Test cases will help. in the code you can do onErrorMap() and that will catch the exception in the code. However it will not show where the root of the problem is. Use Hooks.onOperatorDebug(). you can put this in the application.main(). it will give more informative logs. It slows down the performance however. 
+- there is a checkpoint() alternative, you can add reactor-tools. Reactor debug agent`
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
 
 =========================================================================================
-Java Brains
 =========================================================================================
+Java Brains
 
 	Java Brains - Reactive programming with Java - full course)
 	
